@@ -157,7 +157,7 @@ public class Spider {
             }
 
         }
-        numberofvisitedpages++;
+
         bookLine.setBooks(books);
         bookLine.setMovies(movies);
         bookLine.setMusics(musics);
@@ -293,101 +293,103 @@ public class Spider {
 
     public SearchedItemLine GetBySearch(String searchWord) throws IOException {
 
-        List<String> subLinks = new ArrayList<>();
-        SearchedItemLine searchedItemLine=null;
-        int pageTovisit = 0;
-        int visitedpage = 0;
-        for (String link : Links) {
-            if (link.endsWith("?cat=books") || link.endsWith("?cat=movies") || link.endsWith("?cat=music") ) {
-                Elements linksOnPage = GetSubLinks(link);
-                pageTovisit = linksOnPage.size();
-                visitedpage = 6;
-                numberofvisitedpages++;
-                Currentdepth++;
-                for (Element sub : linksOnPage) {
-                    subLinks.add(sub.absUrl("href"));
-                }
-                while (visitedpage < pageTovisit) {
-
-                    if(visitedpage==6){ Currentdepth++;}
+      if(crawl!=null) {
+            List<String> subLinks = new ArrayList<>();
+            SearchedItemLine searchedItemLine = null;
+            int pageTovisit = 0;
+            int visitedpage = 0;
+          numberofvisitedpages=0;
+          Currentdepth=0;
+            for (String link : Links) {
+                if (link.endsWith("?cat=books") || link.endsWith("?cat=movies") || link.endsWith("?cat=music")) {
+                    Elements linksOnPage = GetSubLinks(link);
+                    pageTovisit = linksOnPage.size();
+                    visitedpage = 6;
                     numberofvisitedpages++;
 
-                    if(searchForWord( searchWord, subLinks.get(visitedpage)))
-                    {
+                    Currentdepth++;
+                    for (Element sub : linksOnPage) {
+                        subLinks.add(sub.absUrl("href"));
+                    }
 
-                        Music music = GetMusic(subLinks.get(visitedpage));
+                    while (visitedpage < pageTovisit) {
 
-                        if(music!=null){
-                            searchedItemLine=new SearchedItemLine<Music>(music);
-                            searchedItemLine.setId(counter.incrementAndGet());
-                            end_Time = System.nanoTime();
-                            searchedItemLine.setTime_elapse(start_Time,end_Time);
-                            PreviousDepth=Currentdepth;
-                            Currentdepth=0;
-                            crawl.SetExplorer(numberofvisitedpages);
-                            crawl.SetDepth(PreviousDepth);
-                            crawl.setTime_elapse(start_Time,end_Time);
-                            numberofvisitedpages=0;
-                            return searchedItemLine; }
-                        else
-                        {
-                            Book book = GetBook(subLinks.get(visitedpage));
-
-                        if(book!=null)
-                        {
-                            searchedItemLine=new SearchedItemLine<Book>(book);
-                            searchedItemLine.setId(counter.incrementAndGet());
-                            end_Time = System.nanoTime();
-                            searchedItemLine.setTime_elapse(start_Time,end_Time);
-                            crawl.setTime_elapse(start_Time,end_Time);
-                            crawl.SetExplorer(numberofvisitedpages);
-                            crawl.SetDepth(Currentdepth);
-                            numberofvisitedpages=0;
-                            Currentdepth=0;
-                            return searchedItemLine;
+                        if (visitedpage == 6) {
+                            Currentdepth++;
                         }
-                        else
-                        {
-                            Movie movie = GetMovie((subLinks.get(visitedpage)));
+                        numberofvisitedpages++;
 
-                            if(visitedpage==6){ Currentdepth++;}
-                            if(movie!=null)
-                            {
-                                searchedItemLine=new SearchedItemLine<Movie>(movie);
+
+                        if (searchForWord(searchWord, subLinks.get(visitedpage))) {
+
+                            Music music = GetMusic(subLinks.get(visitedpage));
+
+                            if (music != null) {
+                                searchedItemLine = new SearchedItemLine<Music>(music);
                                 searchedItemLine.setId(counter.incrementAndGet());
                                 end_Time = System.nanoTime();
-                                searchedItemLine.setTime_elapse(start_Time,end_Time);
-                                crawl.setTime_elapse(start_Time,end_Time);
+                                searchedItemLine.setTime_elapse(start_Time, end_Time);
+                                PreviousDepth = Currentdepth;
+                                Currentdepth = 0;
                                 crawl.SetExplorer(numberofvisitedpages);
-                                crawl.SetDepth(Currentdepth);
-                                numberofvisitedpages=0;
-                                Currentdepth=0;
+                                crawl.SetDepth(PreviousDepth);
+                                crawl.setTime_elapse(start_Time, end_Time);
+                                numberofvisitedpages = 0;
                                 return searchedItemLine;
+                            } else {
+                                Book book = GetBook(subLinks.get(visitedpage));
+
+                                if (book != null) {
+                                    searchedItemLine = new SearchedItemLine<Book>(book);
+                                    searchedItemLine.setId(counter.incrementAndGet());
+                                    end_Time = System.nanoTime();
+                                    searchedItemLine.setTime_elapse(start_Time, end_Time);
+                                    crawl.setTime_elapse(start_Time, end_Time);
+                                    crawl.SetExplorer(numberofvisitedpages);
+                                    crawl.SetDepth(Currentdepth);
+                                    numberofvisitedpages = 0;
+                                    Currentdepth = 0;
+                                    return searchedItemLine;
+                                } else {
+                                    Movie movie = GetMovie((subLinks.get(visitedpage)));
+
+
+                                    if (movie != null) {
+                                        searchedItemLine = new SearchedItemLine<Movie>(movie);
+                                        searchedItemLine.setId(counter.incrementAndGet());
+                                        end_Time = System.nanoTime();
+                                        searchedItemLine.setTime_elapse(start_Time, end_Time);
+                                        crawl.setTime_elapse(start_Time, end_Time);
+                                        crawl.SetExplorer(numberofvisitedpages);
+                                        crawl.SetDepth(Currentdepth);
+                                        numberofvisitedpages = 0;
+                                        Currentdepth = 0;
+                                        return searchedItemLine;
+                                    }
+                                }
                             }
-                        }
-                        }
 
 
+                        }
+                        visitedpage++;
                     }
-                    visitedpage++;
+                    Currentdepth = 0;
+
+                    subLinks.clear();
                 }
-                Currentdepth=0;
-
-                subLinks.clear();
-            }
-
-
-
-
-
 
 
             }
-
-
-
+       }
+     else
+        {
+       throw new NullPointerException();
+        }
 
         return null;
+
+
+
     }
 
     private  Elements GetSubLinks(String url) throws IOException {
@@ -397,7 +399,7 @@ public class Spider {
         return  linksOnPage;
     }
     public boolean searchForWord(String searchWord, String Url) throws IOException {
-        System.out.println("Searching for the word " + searchWord + "...");
+
         Connection connection = Jsoup.connect(Url);
         Document htmlDocument = connection.get();
         String bodyText = htmlDocument.body().text();
