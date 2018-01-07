@@ -17,6 +17,7 @@
     <orderEntry type="module" module-name="Web_main" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-actuator:1.5.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: pl.pragmatists:JUnitParams:1.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.11.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-test:1.5.9.RELEASE" level="project" />

@@ -27,6 +27,7 @@ targetCompatibility = 1.8
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.4'
     compile 'org.jsoup:jsoup:1.11.2'
     compile 'com.google.code.gson:gson:2.8.2'
     testCompile("org.springframework.boot:spring-boot-starter-test")

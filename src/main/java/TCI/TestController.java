@@ -11,7 +11,8 @@ import java.io.IOException;
 @Controller
 public class TestController {
 
-    Spider spider = new Spider();
+    CrawlInformation crawlInformation = new CrawlInformation();
+    Spider spider = new Spider(crawlInformation);
 
     @RequestMapping("/getall")
     public @ResponseBody String SayHello() throws IOException {
@@ -20,7 +21,7 @@ public class TestController {
         MusicMovieBookLine bookLine = spider.GetAll();
         Gson gson = new Gson();
         String userJson = gson.toJson(bookLine);
-        //String body = genson.serialize(bookLine);
+
         return userJson;
     }
 
@@ -35,12 +36,15 @@ public class TestController {
         return userJson;
     }
     @RequestMapping("/FindCrawlActionInformation")
-    public @ResponseBody String CrawlingAction(@RequestParam(value="actionname", defaultValue="Find") String actionname) throws IOException {
+    public @ResponseBody String CrawlingAction(@RequestParam(value="actionname", defaultValue="Find") String actionname,@RequestParam(value="name", defaultValue="The Clean Coder: A Code of Conduct for Professional Programmers") String name ) throws IOException {
 
+        spider.GetAllLinks("http://i298537.hera.fhict.nl/TCI/index.php");
+        spider.GetBySearch(name);
         Gson gson = new Gson();
-       // String userJson = gson.toJson(item);
-        //String body = genson.serialize(bookLine);
-      //  return userJson;
-        return "";
+        String userJson = gson.toJson(spider.crawl);
+
+        return userJson;
     }
+
+
 }

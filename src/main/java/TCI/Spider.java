@@ -15,35 +15,46 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Spider {
 
-
+    public int numberofvisitedpages = 0;
+    public int Currentdepth = 0;
+    public int PreviousDepth = 0;
     public List<String> Links;
+    CrawlInformation crawl;
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.112 Safari/535.1";
     private long start_Time;
     private long end_Time;
     private final AtomicLong counter = new AtomicLong();
 
+    public Spider(CrawlInformation c) {
+        Links = new ArrayList<>();
+        crawl =c;
+    }
     public Spider() {
         Links = new ArrayList<>();
+        crawl =null;
     }
 
     public List<String> getLinks() {
         return Links;
     }
 
-    public void setLinks() {
-        Links = new ArrayList<>();
+    public void setLinks(List<String> links) {
+        Links = links;
     }
 
     public void GetAllLinks(String url) throws IOException {
         try {
+
+            List<String> links = new ArrayList<>();
             start_Time = System.nanoTime();
             Connection connection = Jsoup.connect(url);
             Document htmlDocument = connection.get();
             Elements linksOnPage = htmlDocument.select("a[href]");
             for (Element link : linksOnPage) {
-                this.Links.add(link.absUrl("href"));
+                links.add(link.absUrl("href"));
             }
+            setLinks(links);
         } catch (UnsupportedMimeTypeException u) {
             throw new IllegalArgumentException(u.getMessage());
 
@@ -66,18 +77,24 @@ public class Spider {
                 Elements linksOnPage = htmlDocument.select("a[href]");
                 pageTovisit = linksOnPage.size();
                 visitedpage = 6;
+                Currentdepth++;
                 for (Element sub : linksOnPage) {
                     subLinks.add(sub.absUrl("href"));
                 }
                 while (visitedpage < pageTovisit) {
 
                     Book book = GetBook(subLinks.get(visitedpage));
+                    if(visitedpage==6){ Currentdepth++;}
+                    numberofvisitedpages = numberofvisitedpages + 1 ;
                     if (book != null) {
                         books.add(book);
                     }
 
                     visitedpage++;
+
                 }
+                PreviousDepth=Currentdepth;
+                Currentdepth =0;
                 subLinks.clear();
             }
 
@@ -87,17 +104,27 @@ public class Spider {
                 Elements linksOnPage = htmlDocument.select("a[href]");
                 pageTovisit = linksOnPage.size();
                 visitedpage = 6;
+                Currentdepth++;
                 for (Element sub : linksOnPage) {
                     subLinks.add(sub.absUrl("href"));
                 }
                 while (visitedpage < pageTovisit) {
                     Movie movie = GetMovie(subLinks.get(visitedpage));
+                    numberofvisitedpages ++;
                     if (movie != null) {
                         movies.add(movie);
                     }
+                    if(visitedpage==6){ Currentdepth++;}
                     visitedpage++;
+
                 }
+                if(Currentdepth> PreviousDepth)
+                {
+                    PreviousDepth = Currentdepth;
+                }
+                Currentdepth=0;
                 subLinks.clear();
+
             }
 
             if (link.endsWith("?cat=music")) {
@@ -106,26 +133,45 @@ public class Spider {
                 Elements linksOnPage = htmlDocument.select("a[href]");
                 pageTovisit = linksOnPage.size();
                 visitedpage = 6;
+                Currentdepth++;
                 for (Element sub : linksOnPage) {
                     subLinks.add(sub.absUrl("href"));
                 }
                 while (visitedpage < pageTovisit) {
                     Music music = GetMusic(subLinks.get(visitedpage));
+                    numberofvisitedpages++;
                     if (music != null) {
                         musics.add(music);
                     }
+                    if(visitedpage==6){ Currentdepth++;}
                     visitedpage++;
+
                 }
+                if(Currentdepth > PreviousDepth)
+                {
+                    PreviousDepth = Currentdepth;
+                }
+                Currentdepth=0;
+
                 subLinks.clear();
             }
-        }
 
+        }
+        numberofvisitedpages++;
         bookLine.setBooks(books);
         bookLine.setMovies(movies);
         bookLine.setMusics(musics);
         end_Time = System.nanoTime();
         bookLine.setTime_elapse(start_Time, end_Time);
         bookLine.setId(counter.incrementAndGet());
+        System.out.println(PreviousDepth);
+        if(crawl!=null)
+        {crawl.SetDepth(PreviousDepth);
+        crawl.SetExplorer(numberofvisitedpages);
+        crawl.setTime_elapse(start_Time,end_Time);}
+        numberofvisitedpages=0;
+        PreviousDepth=0;
+
         return bookLine;
     }
 
@@ -256,43 +302,66 @@ public class Spider {
                 Elements linksOnPage = GetSubLinks(link);
                 pageTovisit = linksOnPage.size();
                 visitedpage = 6;
+                numberofvisitedpages++;
+                Currentdepth++;
                 for (Element sub : linksOnPage) {
                     subLinks.add(sub.absUrl("href"));
                 }
                 while (visitedpage < pageTovisit) {
 
+                    if(visitedpage==6){ Currentdepth++;}
+                    numberofvisitedpages++;
+
                     if(searchForWord( searchWord, subLinks.get(visitedpage)))
                     {
-                       Music music = GetMusic(subLinks.get(visitedpage));
+
+                        Music music = GetMusic(subLinks.get(visitedpage));
 
                         if(music!=null){
                             searchedItemLine=new SearchedItemLine<Music>(music);
                             searchedItemLine.setId(counter.incrementAndGet());
                             end_Time = System.nanoTime();
                             searchedItemLine.setTime_elapse(start_Time,end_Time);
+                            PreviousDepth=Currentdepth;
+                            Currentdepth=0;
+                            crawl.SetExplorer(numberofvisitedpages);
+                            crawl.SetDepth(PreviousDepth);
+                            crawl.setTime_elapse(start_Time,end_Time);
+                            numberofvisitedpages=0;
                             return searchedItemLine; }
                         else
                         {
                             Book book = GetBook(subLinks.get(visitedpage));
+
                         if(book!=null)
                         {
                             searchedItemLine=new SearchedItemLine<Book>(book);
                             searchedItemLine.setId(counter.incrementAndGet());
                             end_Time = System.nanoTime();
                             searchedItemLine.setTime_elapse(start_Time,end_Time);
-
+                            crawl.setTime_elapse(start_Time,end_Time);
+                            crawl.SetExplorer(numberofvisitedpages);
+                            crawl.SetDepth(Currentdepth);
+                            numberofvisitedpages=0;
+                            Currentdepth=0;
                             return searchedItemLine;
                         }
                         else
                         {
                             Movie movie = GetMovie((subLinks.get(visitedpage)));
+
+                            if(visitedpage==6){ Currentdepth++;}
                             if(movie!=null)
                             {
                                 searchedItemLine=new SearchedItemLine<Movie>(movie);
                                 searchedItemLine.setId(counter.incrementAndGet());
                                 end_Time = System.nanoTime();
                                 searchedItemLine.setTime_elapse(start_Time,end_Time);
-
+                                crawl.setTime_elapse(start_Time,end_Time);
+                                crawl.SetExplorer(numberofvisitedpages);
+                                crawl.SetDepth(Currentdepth);
+                                numberofvisitedpages=0;
+                                Currentdepth=0;
                                 return searchedItemLine;
                             }
                         }
@@ -302,6 +371,8 @@ public class Spider {
                     }
                     visitedpage++;
                 }
+                Currentdepth=0;
+
                 subLinks.clear();
             }
 
