@@ -61,4 +61,13 @@ public class Book {
     {
 
     }
+    public Book(String genre, String format, String year, String auth, String pub, String isb)
+    {
+setGenre(genre);
+setFormat(format);
+setYear(year);
+setAuthor(auth);
+setPublisher(pub);
+setIsbn(isb);
+    }
 }
