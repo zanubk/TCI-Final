@@ -167,7 +167,7 @@ public void testIfLinksListisBeingFilled() throws IOException
 
         MusicMovieBookLine bookLine = mock(MusicMovieBookLine.class);
         bookLine.setTime_elapse(12,13);
-        verify(bookLine, atLeast(2)).setTime_elapse(12,13);
+        verify(bookLine, atLeast(1)).setTime_elapse(12,13);
 
     }
 
