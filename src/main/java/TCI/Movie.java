@@ -60,4 +60,13 @@ public class Movie {
 
     public Movie()
     {}
+    public Movie(String genre, String format, String year, String dir, String wri, String sta)
+    {
+        setGenre(genre);
+        setFormat(format);
+        setYear(year);
+        setDirector(dir);
+        setWriters(wri);
+        setStars(sta);
+    }
 }
